@@ -3,9 +3,11 @@
 FROM alpine:3.21
 
 ARG TARGETARCH
+ARG PROWLARR_VERSION=unknown
 
-LABEL org.opencontainers.image.source="https://github.com/Prowlarr/Prowlarr"
+LABEL org.opencontainers.image.source="https://github.com/gmcouto/Prowlarr"
 LABEL org.opencontainers.image.description="Prowlarr on Alpine (musl), built from gmcouto-release"
+LABEL org.opencontainers.image.version="${PROWLARR_VERSION}"
 
 ENV XDG_CONFIG_HOME="/config/xdg" \
     COMPlus_EnableDiagnostics=0 \
