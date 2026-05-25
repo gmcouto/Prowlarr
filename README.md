@@ -10,11 +10,7 @@ It is **not** the official Prowlarr project. For upstream support, use the [Serv
 
 The [`cardigann/langsubs`](../../tree/cardigann/langsubs) branch adds support for parsing `languages` and `subs` fields from Cardigann indexer definitions into release metadata.
 
-### Alpine (musl) Docker images
-
-Multi-arch Docker images built for **linux/amd64** and **linux/arm64**, suitable for Alpine and other musl-based systems.
-
-### Custom indexers
+### Custom indexers (not built into the image)
 
 This repository includes additional Cardigann indexer definitions in the [`Indexers/`](Indexers/) folder. They are **not** bundled in the Docker image.
 
@@ -67,7 +63,6 @@ services:
 |-----|-------------|
 | `2.3.5.5327` | Pinned upstream version (recommended) |
 | `latest` | Latest stable release from this fork |
-| `alpine` | Alias for the current Alpine musl build |
 
 Registry: `ghcr.io/gmcouto/prowlarr`
 
