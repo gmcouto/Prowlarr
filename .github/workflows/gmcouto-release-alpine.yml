@@ -64,6 +64,7 @@ jobs:
             -p:SelfContained=True
             -p:Configuration=Release
             -p:Platform=Posix
+            -p:NuGetAudit=false
             -t:PublishAllRids
           )
           dotnet msbuild "${common_args[@]}" -p:RuntimeIdentifiers=linux-musl-x64
