@@ -1,4 +1,4 @@
-# gmcouto/Prowlarr
+# Prowlarr Gaucho
 
 This is a **community fork** of [Prowlarr](https://github.com/Prowlarr/Prowlarr) that tracks upstream stable releases and adds custom changes on top.
 
