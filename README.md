@@ -6,6 +6,8 @@ It is **not** the official Prowlarr project. For upstream support, use the [Serv
 
 ## What this fork adds
 
+![Prowlarr Gaucho](image.png)
+
 ### Cardigann language & subtitle metadata
 
 The [`cardigann/langsubs`](../../tree/cardigann/langsubs) branch adds support for parsing `languages` and `subs` fields from Cardigann indexer definitions into release metadata.
