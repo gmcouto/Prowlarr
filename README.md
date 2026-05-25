@@ -14,6 +14,25 @@ The [`cardigann/langsubs`](../../tree/cardigann/langsubs) branch adds support fo
 
 Multi-arch Docker images built for **linux/amd64** and **linux/arm64**, suitable for Alpine and other musl-based systems.
 
+### Custom indexers
+
+This repository includes additional Cardigann indexer definitions in the [`Indexers/`](Indexers/) folder. They are **not** bundled in the Docker image.
+
+| File | Indexer |
+|------|---------|
+| [`bjshare_gaucho.yml`](Indexers/bjshare_gaucho.yml) | BjShare Gaucho |
+| [`capybarabr_gaucho.yml`](Indexers/capybarabr_gaucho.yml) | CapybaraBR Gaucho (API) |
+| [`locadora_gaucho.yml`](Indexers/locadora_gaucho.yml) | Locadora Gaucho (API) |
+| [`samaritano_gaucho.yml`](Indexers/samaritano_gaucho.yml) | SAMARITANO Gaucho (API) |
+
+To use them:
+
+1. Download the `.yml` files you want from [`Indexers/`](Indexers/).
+2. Copy them into your Prowlarr config directory at **`/config/Definitions/Custom`** (create the `Custom` folder if it does not exist).
+3. Restart Prowlarr, then add each indexer from **Settings → Indexers** like any other Cardigann definition.
+
+With the Docker setup below, that path is inside the mounted `./config` volume (e.g. `./config/Definitions/Custom` on the host).
+
 ## Releases
 
 | Version | Release |
