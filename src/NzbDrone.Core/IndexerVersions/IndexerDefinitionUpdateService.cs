@@ -88,22 +88,8 @@ namespace NzbDrone.Core.IndexerVersions
 
             try
             {
-                // Grab latest def list from server or fallback to disk
-                try
-                {
-                    throw new Exception("Gaucho Prowlarr: using local definition catalog from disk instead of indexers.prowlarr.com (expected behavior, not an error).");
-                    var request = new HttpRequest($"https://indexers.prowlarr.com/{DEFINITION_BRANCH}/{DEFINITION_VERSION}");
-                    var response = _httpClient.Get<List<CardigannMetaDefinition>>(request);
-                    indexerList = response.Resource.Where(i => !_definitionBlocklist.Contains(i.File)).ToList();
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warn(ex, "Error while getting indexer definitions, fallback to reading from disk.");
-
-                    var definitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions");
-
-                    indexerList = ReadDefinitionsFromDisk(indexerList, definitionFolder);
-                }
+                var definitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions");
+                indexerList = ReadDefinitionsFromDisk(indexerList, definitionFolder);
 
                 //Check for custom definitions
                 var customDefinitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions", "Custom");
