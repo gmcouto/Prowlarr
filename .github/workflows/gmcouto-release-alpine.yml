@@ -118,9 +118,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=${{ steps.version.outputs.version }}
-            type=raw,value=alpine
             type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
-            type=sha,prefix=alpine-
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6

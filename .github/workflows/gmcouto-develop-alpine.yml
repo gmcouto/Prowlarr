@@ -125,7 +125,6 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=develop-${{ steps.version.outputs.short_sha }}
-            type=raw,value=alpine-develop-${{ steps.version.outputs.short_sha }}
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
