@@ -65,7 +65,7 @@ jobs:
       - name: Fetch branches and upstream tag
         run: |
           git fetch origin "${INFRA_BRANCH}" "${LANGSUBS_BRANCH}" "${MERGEHEADER_BRANCH}"
-          git fetch "https://github.com/${UPSTREAM_REPO}.git" "refs/tags/${{ steps.upstream.outputs.tag }}:refs/tags/${{ steps.upstream.outputs.tag }}"
+          git fetch --force "https://github.com/${UPSTREAM_REPO}.git" "refs/tags/${{ steps.upstream.outputs.tag }}:refs/tags/${{ steps.upstream.outputs.tag }}"
 
       - name: Sync develop branch
         id: sync
