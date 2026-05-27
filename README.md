@@ -16,7 +16,7 @@ The [`cardigann/langsubs`](../../tree/cardigann/langsubs) branch adds support fo
 
 The [`gmcouto/mergeheader`](../../tree/gmcouto/mergeheader) branch adds support for the `mergeheader` field in Cardigann definitions. Indexers that group torrents under section headers (for example audio or edition labels) can merge the closest preceding header row into each torrent row before parsing, so selectors can match metadata that lives outside the torrent `<tr>` itself.
 
-### Custom indexers (not built into the image)
+### Custom indexers (updated automatically)
 
 Additional Cardigann indexer definitions live in the separate [Prowlarr-Indexers](https://github.com/gmcouto/Prowlarr-Indexers) repository under [`custom-definitions/v11/`](https://github.com/gmcouto/Prowlarr-Indexers/tree/master/custom-definitions/v11). They are **not** bundled in the Docker image, but will automatically download (and update) by the definitions synchronization task.
 
