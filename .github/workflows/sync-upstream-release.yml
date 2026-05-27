@@ -184,3 +184,14 @@ jobs:
           else
             git push origin "${TAG}"
           fi
+
+      - name: Trigger Docker build on force rebuild
+        if: steps.skip.outputs.skip != 'true' && success() && inputs.force_rebuild
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.upstream.outputs.tag }}"
+          VERSION="${{ steps.upstream.outputs.version }}"
+          gh api "repos/${{ github.repository }}/actions/workflows/gmcouto-release-alpine.yml/dispatches" \
+            -f ref="${TAG}" \
+            -f "inputs[version]=${VERSION}"
