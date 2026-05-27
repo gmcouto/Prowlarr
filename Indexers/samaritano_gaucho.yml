@@ -176,6 +176,7 @@ search:
           args: ['(?i)(Portugu.s|Brazilian)(?:[^,]+)?', "Portuguese (Brazil)"] # portuguese is Portuguese (Brazil) (for radarr and sonarr)
     languages_suffix: # add {{ .Result.languages_suffix }} to title if your prowlarr does not support the language field
       text: '{{ .Result.languages }}'
+      optional: true
       filters:
         - name: re_replace
           args: ['(?i)Portugu.s(?:[^,]+)?', "Brazilian"] # portuguese must be brazilian during release title matching

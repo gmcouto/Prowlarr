@@ -121,25 +121,38 @@ search:
       selector: div.torrent_info[data-torrentname]
       attribute: data-torrentname
       optional: true
+    torrent_info: # legacy torrent info, reliable for dual language detection
+      selector: div.torrent_info
+      optional: true
+    languages: # finds DUAL in any source
+      text: '{{ .Result.title_group }} {{ .Result.title_search }} {{ .Result.torrent_info }}'
+      optional: true
       filters:
         - name: re_replace
-          args: ['(?i)\.(mkv)$', ''] # remove the extension from the title
-    languages:
-      text: '{{ .Result.title_search }}'
-      filters:
-        - name: re_replace
-          args: ['(?i)^.*DUAL.*$', 'Original, Portuguese (Brazil)']
+          args: ['(?i)^.*\bDUAL\b.*$', 'Original, Portuguese (Brazil)']
         - name: re_replace
           args: ['(?i)^(?!.*Portuguese \(Brazil\).*$).+$', 'Original']
-    languages_suffix: # add {{ .Result.languages_suffix }} to title if your prowlarr does not support the language field
-      text: '{{ .Result.title_search }}'
+    subs: # finds LEGENDADO in any source to support subtitle matching
+      text: '{{ .Result.title_group }} {{ .Result.title_search }} {{ .Result.torrent_info }}'
+      optional: true
       filters:
         - name: re_replace
-          args: ['(?i)Portugu.s(?:[^,]+)?', "Brazilian"] # portuguese must be brazilian during release title matching
+          args: ['(?i)^.*\bLEGENDADO\b.*$', 'Portuguese (Brazil)']
+        - name: re_replace
+          args: ['(?i)^(?!.*Portuguese \(Brazil\).*$).+$', '']
+    languages_suffix: # you should add {{ .Result.languages_suffix }} to end of title if your prowlarr does not support the language field
+      text: '{{ .Result.languages }}'
+      optional: true
+      filters:
+        - name: re_replace
+          args: ['(?i)Portugu.s(?:[^,]+)?', "Brazilian"] # portuguese must be named as brazilian during release title matching
         - name: re_replace
           args: ['^(\w)', ' / $1'] # add prefix for title concatenation if languages are not empty
     title:
       text: "{{ if .Result.title_search }}{{ .Result.title_search }}{{ else }}{{ .Result.title_group }}{{ end }}"
+      filters:
+        - name: re_replace
+          args: ['(?i)\.(mkv)$', ''] # remove the extension from the title
     imdbid_raw:
       selector: div.torrent_info[data-imdbid]
       attribute: data-imdbid

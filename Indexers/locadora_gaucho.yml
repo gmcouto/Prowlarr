@@ -176,6 +176,7 @@ search:
       text: "{{ if and (.Config.single_file_release_use_filename) (eq .Result.files \"1\") (.Result.title_filename) }}{{ .Result.title_filename }}{{ else }}{{ .Result.title_optional }}{{ end }}"
     languages_title:
       text: '{{ .Result.orig_title }}'
+      optional: true
       filters:
         - name: re_replace
           args: ['(?i)^.*?(?= \/ |$)', ''] # remove everything after the first " / " if it exists to capture built in languages
@@ -183,18 +184,12 @@ search:
           args: ['\s+', ', '] # replace multiple spaces with comma separator for built in languages
     languages:
       text: '{{ .Result.languages_title }}, {{ .Result.languages_media_info }}'
+      optional: true
       filters:
         - name: re_replace
           args: ['\b([^,]+)(?:,\s*\1)+', '$1'] # removes duplicated languages
         - name: re_replace
           args: ['(?i)(Portugu.s|Brazilian)(?:[^,]+)?', "Portuguese (Brazil)"] # portuguese is Portuguese (Brazil) (for radarr and sonarr)
-    languages_suffix: # add {{ .Result.languages_suffix }} to title if your prowlarr does not support the language field
-      text: '{{ .Result.languages }}'
-      filters:
-        - name: re_replace
-          args: ['(?i)Portugu.s(?:[^,]+)?', "Brazilian"] # portuguese must be brazilian during release title matching
-        - name: re_replace
-          args: ['^(\w)', ' / $1'] # add prefix for title concatenation if languages are not empty
     title:
       text: "{{ .Result.orig_title }}"
       filters:
