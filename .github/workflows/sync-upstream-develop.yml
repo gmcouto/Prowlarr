@@ -76,7 +76,7 @@ jobs:
 
           git checkout -B "${DEVELOP_BRANCH}" "${TAG}"
 
-          if ! git merge "origin/${INFRA_BRANCH}" -m "Apply gmcouto infra for develop ${VERSION}"; then
+          if ! git merge --no-ff "origin/${INFRA_BRANCH}" -m "Apply gmcouto infra for develop ${VERSION}"; then
             echo "merge_failed=infra" >> "$GITHUB_OUTPUT"
             git diff --name-only --diff-filter=U > /tmp/conflicts.txt || true
             git merge --abort || true
