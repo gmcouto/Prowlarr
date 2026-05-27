@@ -81,7 +81,7 @@ Registry: `ghcr.io/gmcouto/prowlarr`
 
 1. A scheduled workflow checks [Prowlarr/Prowlarr](https://github.com/Prowlarr/Prowlarr) for new **stable** releases.
 2. When a new version is found, upstream code is merged with `gmcouto/infra` and `cardigann/langsubs` on `gmcouto-release`.
-3. A version tag (e.g. `v2.3.5.5327`) triggers the Alpine build and publishes the Docker image to GHCR.
+3. A version tag (e.g. `v2.3.5.5327`) triggers the build and publishes the Docker image to GHCR.
 
 ## Upstream
 
