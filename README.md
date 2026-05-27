@@ -5,8 +5,8 @@ This is a **community fork** of [Prowlarr](https://github.com/Prowlarr/Prowlarr)
 It is **not** the official Prowlarr project. For upstream support, use the [Servarr wiki](https://wiki.servarr.com/prowlarr) and [Prowlarr/Prowlarr](https://github.com/Prowlarr/Prowlarr).
 
 ## What this fork adds
-
-![Prowlarr Gaucho](image.png)
+With this fork you can get the following results.
+![Prowlarr Gaucho](result.png)
 
 ### Cardigann language & subtitle metadata
 
@@ -18,22 +18,15 @@ The [`gmcouto/mergeheader`](../../tree/gmcouto/mergeheader) branch adds support 
 
 ### Custom indexers (not built into the image)
 
-This repository includes additional Cardigann indexer definitions in the [`Indexers/`](Indexers/) folder. They are **not** bundled in the Docker image.
+Additional Cardigann indexer definitions live in the separate [Prowlarr-Indexers](https://github.com/gmcouto/Prowlarr-Indexers) repository under [`custom-definitions/v11/`](https://github.com/gmcouto/Prowlarr-Indexers/tree/master/custom-definitions/v11). They are **not** bundled in the Docker image, but will automatically download (and update) by the definitions synchronization task.
 
 | File | Indexer |
 |------|---------|
-| [`bjshare_gaucho.yml`](Indexers/bjshare_gaucho.yml) | BjShare Gaucho (disable grouping on site for this to work) |
-| [`capybarabr_gaucho.yml`](Indexers/capybarabr_gaucho.yml) | CapybaraBR Gaucho (API) |
-| [`locadora_gaucho.yml`](Indexers/locadora_gaucho.yml) | Locadora Gaucho (API) |
-| [`samaritano_gaucho.yml`](Indexers/samaritano_gaucho.yml) | SAMARITANO Gaucho (API) |
+| [`bjshare_gaucho.yml`](https://github.com/gmcouto/Prowlarr-Indexers/blob/master/custom-definitions/v11/bjshare_gaucho.yml) | BjShare Gaucho (disable grouping on site for this to work) |
+| [`capybarabr_gaucho.yml`](https://github.com/gmcouto/Prowlarr-Indexers/blob/master/custom-definitions/v11/capybarabr_gaucho.yml) | CapybaraBR Gaucho (API) |
+| [`locadora_gaucho.yml`](https://github.com/gmcouto/Prowlarr-Indexers/blob/master/custom-definitions/v11/locadora_gaucho.yml) | Locadora Gaucho (API) |
+| [`samaritano_gaucho.yml`](https://github.com/gmcouto/Prowlarr-Indexers/blob/master/custom-definitions/v11/samaritano_gaucho.yml) | SAMARITANO Gaucho (API) |
 
-To use them:
-
-1. Download the `.yml` files you want from [`Indexers/`](Indexers/).
-2. Copy them into your Prowlarr config directory at **`/config/Definitions/Custom`** (create the `Custom` folder if it does not exist).
-3. Restart Prowlarr, then add each indexer from **Settings → Indexers** like any other Cardigann definition.
-
-With the Docker setup below, that path is inside the mounted `./config` volume (e.g. `./config/Definitions/Custom` on the host).
 
 ## Releases
 
@@ -41,20 +34,18 @@ With the Docker setup below, that path is inside the mounted `./config` volume (
 |---------|---------|
 | Latest  | [Releases](../../releases/latest) |
 
-Current stable release: **2.3.5.5327**
-
 ## Docker
 
 Replace the version tag with the [latest release](../../releases/latest):
 
 ```bash
-docker pull ghcr.io/gmcouto/prowlarr:2.3.5.5327
+docker pull ghcr.io/gmcouto/prowlarr:latest
 ```
 
 ```yaml
 services:
   prowlarr:
-    image: ghcr.io/gmcouto/prowlarr:2.3.5.5327
+    image: ghcr.io/gmcouto/prowlarr:latest
     container_name: prowlarr
     ports:
       - "9696:9696"
@@ -63,14 +54,12 @@ services:
     restart: unless-stopped
 ```
 
-### Image tags
+### Update your indexer definitions after first install
+It is good for you to update your Indexer definitions after first install so you can have the `_gaucho` definitions.
+![Update your definitions](update_definitions.png)
 
-| Tag | Description |
-|-----|-------------|
-| `2.3.5.5327` | Pinned upstream version (recommended) |
-| `latest` | Latest stable release from this fork |
-
-Registry: `ghcr.io/gmcouto/prowlarr`
+Then you can add an indexer using the definitions to your app:
+![Add indexers](add_indexer.png)
 
 ## Repository branches
 
