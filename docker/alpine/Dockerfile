@@ -11,13 +11,20 @@ LABEL org.opencontainers.image.version="${PROWLARR_VERSION}"
 
 ENV XDG_CONFIG_HOME="/config/xdg" \
     COMPlus_EnableDiagnostics=0 \
-    TMPDIR="/run/prowlarr-temp"
+    TMPDIR="/run/prowlarr-temp" \
+    PUID=1000 \
+    PGID=1000 \
+    UMASK=002
 
 RUN apk add --no-cache \
       ca-certificates \
       icu-libs \
       sqlite-libs \
+      su-exec \
+      shadow \
       tzdata \
+    && addgroup -g 1000 prowlarr \
+    && adduser -u 1000 -G prowlarr -s /sbin/nologin -D prowlarr \
     && mkdir -p /app/prowlarr /config /run/prowlarr-temp
 
 COPY docker/alpine/entrypoint.sh /entrypoint.sh
