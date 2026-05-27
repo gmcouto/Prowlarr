@@ -91,6 +91,7 @@ namespace NzbDrone.Core.IndexerVersions
                 // Grab latest def list from server or fallback to disk
                 try
                 {
+                    throw new Exception("Gaucho Prowlarr: using local definition catalog from disk instead of indexers.prowlarr.com (expected behavior, not an error).");
                     var request = new HttpRequest($"https://indexers.prowlarr.com/{DEFINITION_BRANCH}/{DEFINITION_VERSION}");
                     var response = _httpClient.Get<List<CardigannMetaDefinition>>(request);
                     indexerList = response.Resource.Where(i => !_definitionBlocklist.Contains(i.File)).ToList();
@@ -313,7 +314,7 @@ namespace NzbDrone.Core.IndexerVersions
                 var definitionsFolder = Path.Combine(startupFolder, "Definitions");
                 var saveFile = Path.Combine(definitionsFolder, "indexers.zip");
 
-                _httpClient.DownloadFile($"https://indexers.prowlarr.com/{DEFINITION_BRANCH}/{DEFINITION_VERSION}/package.zip", saveFile);
+                _httpClient.DownloadFile("https://github.com/gmcouto/Prowlarr-Indexers/archive/refs/heads/v11.zip", saveFile);
 
                 using (var archive = ZipFile.OpenRead(saveFile))
                 {
