@@ -95,7 +95,8 @@ search:
       args: ["(?i)\\b(?:[SE]\\d{1,4}){1,2}\\b\\s?", ""] # remove SXXEXX or SXX from search
 
   rows:
-    selector: "tr.torrent, tr.group_torrent:not(.season_header)"
+    selector: "tr.torrent"
+    mergeheader: "td.audio_header.edition_info"
 
   fields:
     category_raw:
@@ -121,11 +122,14 @@ search:
       selector: div.torrent_info[data-torrentname]
       attribute: data-torrentname
       optional: true
+    audio_header: # audio header for when searching with imdb id only
+      selector: td.audio_header.edition_info
+      optional: true
     torrent_info: # legacy torrent info, reliable for dual language detection
       selector: div.torrent_info
       optional: true
     languages: # finds DUAL in any source
-      text: '{{ .Result.title_group }} {{ .Result.title_search }} {{ .Result.torrent_info }}'
+      text: '{{ .Result.title_group }} {{ .Result.title_search }} {{ .Result.torrent_info }} {{ .Result.audio_header }}'
       optional: true
       filters:
         - name: re_replace
