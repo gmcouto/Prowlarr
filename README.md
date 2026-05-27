@@ -12,13 +12,17 @@ It is **not** the official Prowlarr project. For upstream support, use the [Serv
 
 The [`cardigann/langsubs`](../../tree/cardigann/langsubs) branch adds support for parsing `languages` and `subs` fields from Cardigann indexer definitions into release metadata.
 
+### Cardigann mergeheader
+
+The [`gmcouto/mergeheader`](../../tree/gmcouto/mergeheader) branch adds support for the `mergeheader` field in Cardigann definitions. Indexers that group torrents under section headers (for example audio or edition labels) can merge the closest preceding header row into each torrent row before parsing, so selectors can match metadata that lives outside the torrent `<tr>` itself.
+
 ### Custom indexers (not built into the image)
 
 This repository includes additional Cardigann indexer definitions in the [`Indexers/`](Indexers/) folder. They are **not** bundled in the Docker image.
 
 | File | Indexer |
 |------|---------|
-| [`bjshare_gaucho.yml`](Indexers/bjshare_gaucho.yml) | BjShare Gaucho |
+| [`bjshare_gaucho.yml`](Indexers/bjshare_gaucho.yml) | BjShare Gaucho (disable grouping on site for this to work) |
 | [`capybarabr_gaucho.yml`](Indexers/capybarabr_gaucho.yml) | CapybaraBR Gaucho (API) |
 | [`locadora_gaucho.yml`](Indexers/locadora_gaucho.yml) | Locadora Gaucho (API) |
 | [`samaritano_gaucho.yml`](Indexers/samaritano_gaucho.yml) | SAMARITANO Gaucho (API) |
@@ -76,11 +80,12 @@ Registry: `ghcr.io/gmcouto/prowlarr`
 | [`gmcouto-release`](../../tree/gmcouto-release) | Shippable code (upstream release + customizations) |
 | [`gmcouto/infra`](../../tree/gmcouto/infra) | Docker and build workflow overlay |
 | [`cardigann/langsubs`](../../tree/cardigann/langsubs) | Cardigann language/subtitle feature |
+| [`gmcouto/mergeheader`](../../tree/gmcouto/mergeheader) | Cardigann mergeheader feature |
 
 ## How releases are built
 
 1. A scheduled workflow checks [Prowlarr/Prowlarr](https://github.com/Prowlarr/Prowlarr) for new **stable** releases.
-2. When a new version is found, upstream code is merged with `gmcouto/infra` and `cardigann/langsubs` on `gmcouto-release`.
+2. When a new version is found, upstream code is merged with `gmcouto/infra`, `cardigann/langsubs`, and `gmcouto/mergeheader` on `gmcouto-release`.
 3. A version tag (e.g. `v2.3.5.5327`) triggers the build and publishes the Docker image to GHCR.
 
 ## Upstream

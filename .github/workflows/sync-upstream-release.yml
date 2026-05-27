@@ -9,6 +9,11 @@ on:
         description: 'Override upstream version (e.g. 2.3.6.5351). Leave empty to use latest stable release.'
         required: false
         type: string
+      force_rebuild:
+        description: 'Rebuild and re-tag even if the version tag already exists.'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: sync-upstream-release
@@ -22,6 +27,7 @@ env:
   UPSTREAM_REPO: Prowlarr/Prowlarr
   INFRA_BRANCH: gmcouto/infra
   LANGSUBS_BRANCH: cardigann/langsubs
+  MERGEHEADER_BRANCH: gmcouto/mergeheader
   RELEASE_BRANCH: gmcouto-release
 
 jobs:
@@ -69,6 +75,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.upstream.outputs.tag }}"
+          if [ "${{ inputs.force_rebuild }}" = "true" ]; then
+            echo "force_rebuild enabled; rebuilding ${TAG}."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if git ls-remote --exit-code origin "refs/tags/${TAG}" >/dev/null 2>&1; then
             echo "Tag ${TAG} already exists on origin; skipping."
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -84,8 +95,8 @@ jobs:
       - name: Fetch branches and upstream tag
         if: steps.skip.outputs.skip != 'true'
         run: |
-          git fetch origin "${INFRA_BRANCH}" "${LANGSUBS_BRANCH}"
-          git fetch "https://github.com/${UPSTREAM_REPO}.git" "refs/tags/${{ steps.upstream.outputs.tag }}:refs/tags/${{ steps.upstream.outputs.tag }}"
+          git fetch origin "${INFRA_BRANCH}" "${LANGSUBS_BRANCH}" "${MERGEHEADER_BRANCH}"
+          git fetch --force "https://github.com/${UPSTREAM_REPO}.git" "refs/tags/${{ steps.upstream.outputs.tag }}:refs/tags/${{ steps.upstream.outputs.tag }}"
 
       - name: Sync release branch
         if: steps.skip.outputs.skip != 'true'
@@ -111,6 +122,13 @@ jobs:
 
           if ! git merge "origin/${LANGSUBS_BRANCH}" -m "Merge cardigann/langsubs for ${VERSION}"; then
             echo "merge_failed=langsubs" >> "$GITHUB_OUTPUT"
+            git diff --name-only --diff-filter=U > /tmp/conflicts.txt || true
+            git merge --abort || true
+            exit 1
+          fi
+
+          if ! git merge "origin/${MERGEHEADER_BRANCH}" -m "Merge gmcouto/mergeheader for ${VERSION}"; then
+            echo "merge_failed=mergeheader" >> "$GITHUB_OUTPUT"
             git diff --name-only --diff-filter=U > /tmp/conflicts.txt || true
             git merge --abort || true
             exit 1
@@ -155,5 +173,10 @@ jobs:
           TAG="${{ steps.upstream.outputs.tag }}"
 
           git push origin "${RELEASE_BRANCH}"
-          git tag -a "${TAG}" -m "gmcouto release ${VERSION} (upstream + cardigann/langsubs)"
-          git push origin "${TAG}"
+          git tag -d "${TAG}" 2>/dev/null || true
+          git tag -a "${TAG}" -m "gmcouto release ${VERSION} (upstream + cardigann/langsubs + gmcouto/mergeheader)"
+          if [ "${{ inputs.force_rebuild }}" = "true" ]; then
+            git push --force origin "${TAG}"
+          else
+            git push origin "${TAG}"
+          fi
