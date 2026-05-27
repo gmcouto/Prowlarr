@@ -126,6 +126,41 @@ namespace NzbDrone.Core.Indexers.Definitions.Cardigann
             return element.QuerySelector(selector);
         }
 
+        protected IElement FindPreviousSiblingMatch(IElement row, string selector)
+        {
+            var prevRow = row.PreviousElementSibling;
+            if (prevRow == null)
+            {
+                var parent = row.ParentElement;
+                if (parent != null)
+                {
+                    prevRow = parent.PreviousElementSibling;
+                }
+            }
+
+            while (prevRow != null)
+            {
+                var curRow = prevRow;
+                var match = QuerySelector(curRow, selector);
+                if (match != null)
+                {
+                    return match;
+                }
+
+                prevRow = curRow.PreviousElementSibling;
+                if (prevRow == null)
+                {
+                    var parent = curRow.ParentElement;
+                    if (parent != null)
+                    {
+                        prevRow = parent.PreviousElementSibling;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         protected string HandleSelector(SelectorBlock selector, IElement dom, Dictionary<string, object> variables = null, bool required = true)
         {
             if (selector.Text != null)
