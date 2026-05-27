@@ -138,4 +138,4 @@ jobs:
       - name: Push develop branch
         if: success()
         run: |
-          git push origin "${DEVELOP_BRANCH}"
+          git push --force-with-lease origin "${DEVELOP_BRANCH}"
