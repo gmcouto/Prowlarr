@@ -278,6 +278,19 @@ namespace NzbDrone.Core.Indexers.Definitions.Cardigann
                     }
                 }
 
+                if (search.Rows.Mergeheader.IsNotNullOrWhiteSpace())
+                {
+                    var mergeSelector = ApplyGoTemplateText(search.Rows.Mergeheader, variables);
+                    foreach (var row in rows)
+                    {
+                        var match = FindPreviousSiblingMatch(row, mergeSelector);
+                        if (match != null)
+                        {
+                            row.Append(match.Clone(true));
+                        }
+                    }
+                }
+
                 foreach (var row in rows)
                 {
                     try
