@@ -173,11 +173,7 @@ jobs:
           VERSION="${{ steps.upstream.outputs.version }}"
           TAG="${{ steps.upstream.outputs.tag }}"
 
-          if [ "${{ inputs.force_rebuild }}" = "true" ]; then
-            git push --force-with-lease origin "${RELEASE_BRANCH}"
-          else
-            git push origin "${RELEASE_BRANCH}"
-          fi
+          git push --force-with-lease origin "${RELEASE_BRANCH}"
           git tag -d "${TAG}" 2>/dev/null || true
           git tag -a "${TAG}" -m "gmcouto release ${VERSION} (upstream + cardigann/langsubs + gmcouto/mergeheader)"
           if [ "${{ inputs.force_rebuild }}" = "true" ]; then
