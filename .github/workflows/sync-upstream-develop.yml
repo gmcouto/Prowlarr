@@ -106,6 +106,29 @@ jobs:
 
           echo "merge_failed=" >> "$GITHUB_OUTPUT"
 
+      - name: Filter upstream-only workflow additions
+        if: success()
+        run: |
+          set -e
+          VERSION="${{ steps.upstream.outputs.version }}"
+          # GITHUB_TOKEN cannot push .github/workflows/ changes even with workflows:write
+          # in some GitHub configurations. Remove any workflow files that were added by the
+          # upstream tag but are not part of our custom infra branch, so the push never
+          # touches workflow files that belong solely to upstream.
+          ADDED=$(git diff --name-only --diff-filter=A "origin/${DEVELOP_BRANCH}" HEAD \
+                    -- '.github/workflows/' 2>/dev/null || true)
+          NEEDS_COMMIT=false
+          for f in $ADDED; do
+            if ! git cat-file -e "origin/${INFRA_BRANCH}:${f}" 2>/dev/null; then
+              echo "Removing upstream-only workflow file: $f"
+              git rm -f "$f"
+              NEEDS_COMMIT=true
+            fi
+          done
+          if $NEEDS_COMMIT; then
+            git commit -m "Remove upstream-only workflow additions for develop ${VERSION}"
+          fi
+
       - name: Open issue on merge failure
         if: failure() && steps.sync.outputs.merge_failed != ''
         env:
