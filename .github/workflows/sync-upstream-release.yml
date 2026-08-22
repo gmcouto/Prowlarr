@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WORKFLOWS_TOKEN }}
 
       - name: Configure git
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: Resolve upstream version
         id: upstream
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           if [ -n "${{ inputs.force_version }}" ]; then
             VERSION="${{ inputs.force_version }}"
@@ -73,7 +73,7 @@ jobs:
       - name: Skip if already released
         id: skip
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           TAG="${{ steps.upstream.outputs.tag }}"
           if [ "${{ inputs.force_rebuild }}" = "true" ]; then
@@ -140,7 +140,7 @@ jobs:
       - name: Open issue on merge failure
         if: failure() && steps.skip.outputs.skip != 'true' && steps.sync.outputs.merge_failed != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           VERSION="${{ steps.upstream.outputs.version }}"
           TAG="${{ steps.upstream.outputs.tag }}"
@@ -185,7 +185,7 @@ jobs:
       - name: Trigger Docker build on force rebuild
         if: steps.skip.outputs.skip != 'true' && success() && inputs.force_rebuild
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           TAG="${{ steps.upstream.outputs.tag }}"
           VERSION="${{ steps.upstream.outputs.version }}"

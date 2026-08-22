@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WORKFLOWS_TOKEN }}
 
       - name: Configure git
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Resolve upstream version
         id: upstream
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           if [ -n "${{ inputs.force_version }}" ]; then
             VERSION="${{ inputs.force_version }}"
@@ -108,7 +108,7 @@ jobs:
       - name: Open issue on merge failure
         if: failure() && steps.sync.outputs.merge_failed != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOWS_TOKEN }}
         run: |
           VERSION="${{ steps.upstream.outputs.version }}"
           TAG="${{ steps.upstream.outputs.tag }}"
