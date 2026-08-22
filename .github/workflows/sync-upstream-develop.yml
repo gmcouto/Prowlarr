@@ -15,7 +15,6 @@ concurrency:
 permissions:
   contents: write
   issues: write
-  workflows: write
 
 env:
   UPSTREAM_REPO: Prowlarr/Prowlarr
