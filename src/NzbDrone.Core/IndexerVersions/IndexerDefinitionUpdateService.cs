@@ -88,21 +88,8 @@ namespace NzbDrone.Core.IndexerVersions
 
             try
             {
-                // Grab latest def list from server or fallback to disk
-                try
-                {
-                    var request = new HttpRequest($"https://indexers.prowlarr.com/{DEFINITION_BRANCH}/{DEFINITION_VERSION}");
-                    var response = _httpClient.Get<List<CardigannMetaDefinition>>(request);
-                    indexerList = response.Resource.Where(i => !_definitionBlocklist.Contains(i.File)).ToList();
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warn(ex, "Error while getting indexer definitions, fallback to reading from disk.");
-
-                    var definitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions");
-
-                    indexerList = ReadDefinitionsFromDisk(indexerList, definitionFolder);
-                }
+                var definitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions");
+                indexerList = ReadDefinitionsFromDisk(indexerList, definitionFolder);
 
                 //Check for custom definitions
                 var customDefinitionFolder = Path.Combine(_appFolderInfo.AppDataFolder, "Definitions", "Custom");
@@ -313,7 +300,7 @@ namespace NzbDrone.Core.IndexerVersions
                 var definitionsFolder = Path.Combine(startupFolder, "Definitions");
                 var saveFile = Path.Combine(definitionsFolder, "indexers.zip");
 
-                _httpClient.DownloadFile($"https://indexers.prowlarr.com/{DEFINITION_BRANCH}/{DEFINITION_VERSION}/package.zip", saveFile);
+                _httpClient.DownloadFile("https://github.com/gmcouto/Prowlarr-Indexers/raw/refs/heads/v11/v11.zip", saveFile);
 
                 using (var archive = ZipFile.OpenRead(saveFile))
                 {
