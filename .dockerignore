@@ -1,0 +1,4 @@
+*
+!_artifacts/linux-musl-x64/**
+!_artifacts/linux-musl-arm64/**
+!docker/alpine/**
