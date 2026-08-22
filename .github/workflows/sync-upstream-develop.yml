@@ -118,13 +118,14 @@ jobs:
           ADDED=$(git diff --name-only --diff-filter=A "origin/${DEVELOP_BRANCH}" HEAD \
                     -- '.github/workflows/' 2>/dev/null || true)
           NEEDS_COMMIT=false
-          for f in $ADDED; do
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
             if ! git cat-file -e "origin/${INFRA_BRANCH}:${f}" 2>/dev/null; then
               echo "Removing upstream-only workflow file: $f"
               git rm -f "$f"
               NEEDS_COMMIT=true
             fi
-          done
+          done <<< "$ADDED"
           if $NEEDS_COMMIT; then
             git commit -m "Remove upstream-only workflow additions for develop ${VERSION}"
           fi
