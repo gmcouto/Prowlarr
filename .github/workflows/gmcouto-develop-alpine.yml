@@ -1,0 +1,140 @@
+name: gmcouto-develop Alpine
+
+on:
+  push:
+    branches:
+      - gmcouto-develop
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or SHA to build (default: gmcouto-develop)'
+        required: false
+        type: string
+
+concurrency:
+  group: gmcouto-develop-alpine-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOTNET_VERSION: '8.0.405'
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || 'gmcouto-develop' }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Resolve upstream version
+        id: version
+        run: |
+          VERSION=$(git log --grep=' for develop ' --format=%s -1 | sed -n 's/.* for develop \([0-9][0-9.]*\)$/\1/p')
+          if [ -z "$VERSION" ]; then
+            VERSION=$(git log --grep='^Apply gmcouto infra for develop ' --format=%s -1 | sed 's/Apply gmcouto infra for develop //')
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "Could not resolve upstream version from develop branch history."
+            exit 1
+          fi
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Building Prowlarr ${VERSION} (develop ${SHORT_SHA})"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+
+      - name: Enable Yarn
+        run: corepack enable
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Build frontend
+        run: ./build.sh --frontend
+        env:
+          FORCE_COLOR: '0'
+          PROWLARRVERSION: ${{ steps.version.outputs.version }}
+          BUILD_SOURCEBRANCHNAME: gmcouto-develop
+
+      - name: Build musl backend (x64 + arm64)
+        run: |
+          common_args=(
+            -restore src/Prowlarr.sln
+            -p:SelfContained=True
+            -p:Configuration=Release
+            -p:Platform=Posix
+            -p:NuGetAudit=false
+            -t:PublishAllRids
+          )
+          dotnet msbuild "${common_args[@]}" -p:RuntimeIdentifiers=linux-musl-x64
+          dotnet msbuild "${common_args[@]}" -p:RuntimeIdentifiers=linux-musl-arm64
+        env:
+          PROWLARRVERSION: ${{ steps.version.outputs.version }}
+          BUILD_SOURCEBRANCHNAME: gmcouto-develop
+
+      - name: Package musl builds
+        run: |
+          ./build.sh --packages -f net8.0 -r linux-musl-x64
+          ./build.sh --packages -f net8.0 -r linux-musl-arm64
+          find _artifacts -name Prowlarr -exec chmod a+x {} \;
+          find _artifacts -name Prowlarr.Update -exec chmod a+x {} \;
+        env:
+          PROWLARRVERSION: ${{ steps.version.outputs.version }}
+          BUILD_SOURCEBRANCHNAME: gmcouto-develop
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=develop-${{ steps.version.outputs.short_sha }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/alpine/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PROWLARR_VERSION=${{ steps.version.outputs.version }}
+          provenance: false

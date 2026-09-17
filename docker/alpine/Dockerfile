@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1
+
+FROM alpine:3.21
+
+ARG TARGETARCH
+ARG PROWLARR_VERSION=unknown
+
+LABEL org.opencontainers.image.source="https://github.com/gmcouto/Prowlarr"
+LABEL org.opencontainers.image.description="Prowlarr on Alpine (musl), built from gmcouto-release"
+LABEL org.opencontainers.image.version="${PROWLARR_VERSION}"
+
+ENV XDG_CONFIG_HOME="/config/xdg" \
+    COMPlus_EnableDiagnostics=0 \
+    TMPDIR="/run/prowlarr-temp" \
+    PUID=1000 \
+    PGID=1000 \
+    UMASK=002
+
+RUN apk add --no-cache \
+      ca-certificates \
+      icu-libs \
+      sqlite-libs \
+      su-exec \
+      shadow \
+      tzdata \
+    && addgroup -g 1000 prowlarr \
+    && adduser -u 1000 -G prowlarr -s /sbin/nologin -D prowlarr \
+    && mkdir -p /app/prowlarr /config /run/prowlarr-temp
+
+COPY docker/alpine/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+COPY _artifacts/linux-musl-x64/net8.0/Prowlarr /tmp/prowlarr-amd64
+COPY _artifacts/linux-musl-arm64/net8.0/Prowlarr /tmp/prowlarr-arm64
+
+RUN case "${TARGETARCH}" in \
+      amd64) SRC=/tmp/prowlarr-amd64 ;; \
+      arm64) SRC=/tmp/prowlarr-arm64 ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac \
+    && cp -a "${SRC}/." /app/prowlarr/ \
+    && rm -rf /tmp/prowlarr-amd64 /tmp/prowlarr-arm64 \
+    && rm -rf /app/prowlarr/Prowlarr.Update \
+    && chmod +x /app/prowlarr/Prowlarr
+
+WORKDIR /app/prowlarr
+
+EXPOSE 9696
+VOLUME /config
+
+ENTRYPOINT ["/entrypoint.sh"]
