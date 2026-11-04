@@ -110,9 +110,29 @@ jobs:
           git checkout -B "${RELEASE_BRANCH}" "${TAG}"
 
           if ! git merge "origin/${INFRA_BRANCH}" -m "Apply gmcouto infra for ${VERSION}"; then
-            echo "merge_failed=infra" >> "$GITHUB_OUTPUT"
-            git merge --abort || true
-            exit 1
+            git diff --name-only --diff-filter=U > /tmp/conflicts.txt || true
+            unresolved=false
+            while IFS= read -r conflict; do
+              [ -z "$conflict" ] && continue
+              case "$conflict" in
+                .github/workflows/label-actions.yml|.github/workflows/labeler.yml|.github/workflows/lock.yml)
+                  echo "Keeping fork-owned infrastructure workflow: $conflict"
+                  git checkout --theirs -- "$conflict"
+                  git add -- "$conflict"
+                  ;;
+                *)
+                  echo "Unresolved infrastructure merge conflict: $conflict"
+                  unresolved=true
+                  ;;
+              esac
+            done < /tmp/conflicts.txt
+
+            if [ "$unresolved" = true ]; then
+              echo "merge_failed=infra" >> "$GITHUB_OUTPUT"
+              git merge --abort || true
+              exit 1
+            fi
+            git commit --no-edit
           fi
 
           COMMITS_TO_MERGE=$(git log --oneline "${TAG}..origin/${LANGSUBS_BRANCH}" | wc -l | tr -d ' ')
