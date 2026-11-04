@@ -142,7 +142,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           NOTES="Built from upstream Prowlarr ${VERSION} with cardigann/langsubs and gmcouto/mergeheader.
 
-          Docker: \`ghcr.io/biel-homelab/prowlarr:${VERSION}\`"
+          Docker: \`ghcr.io/gmcouto/prowlarr:${VERSION}\`"
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release edit "$TAG" --title "$VERSION" --notes "$NOTES"
