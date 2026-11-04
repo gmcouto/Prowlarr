@@ -84,7 +84,7 @@ jobs:
               case "$conflict" in
                 .github/workflows/label-actions.yml|.github/workflows/labeler.yml|.github/workflows/lock.yml)
                   echo "Keeping fork-owned infrastructure workflow: $conflict"
-                  git checkout --theirs -- "$conflict"
+                  git checkout --ours -- "$conflict"
                   git add -- "$conflict"
                   ;;
                 *)
