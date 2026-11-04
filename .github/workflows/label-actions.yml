@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   action:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-24.04
     steps:
       - uses: dessant/label-actions@v4
         with:
