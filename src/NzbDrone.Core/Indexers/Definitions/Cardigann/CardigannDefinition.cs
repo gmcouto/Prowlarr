@@ -158,6 +158,7 @@ namespace NzbDrone.Core.Indexers.Definitions.Cardigann
     public class RowsBlock : SelectorBlock
     {
         public int After { get; set; }
+        public string Mergeheader { get; set; }
         public SelectorBlock Dateheaders { get; set; }
         public SelectorBlock Count { get; set; }
         public bool Multiple { get; set; }
